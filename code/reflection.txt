@@ -1,7 +1,42 @@
-Write your reflection here.
+Reflection: Assignment 05
 
-See reflection.md for what makes a good reflection — be specific, use the
-terminology from this assignment (grain, long vs. wide, vectorized .str methods,
-coerce, NaT, pd.to_datetime format, .dt, concat, ignore_index, group by, named
-aggregation, reset_index, pivot_table, fill_value, melt, lineage), and make it
-actionable.
+Grain was the main idea this week. In Assignment 04 every step widened the
+table and kept lineage: copy, add columns, return, never overwrite.
+add_clean_columns, add_date_parts and add_roster follow that rule, so the raw
+" e004" stays in employeeid and the clean "E004" goes in a new employee_id
+column. summarize_employees, hours_grid and pay_by_month are different. They
+build a new table at a new grain (one row per person, one row per person
+with a column per week, one row per month) from the history without
+modifying it. A group by doesn't destroy lineage, since every number still
+traces to a group of history rows, but it starts a new table, so the
+lineage rule doesn't apply to it.
+
+Vectorized .str methods replaced apply. clean_employee_id chains strip,
+upper, [1:] and zfill(3) on the whole column at once. Stopping at upper()
+would leave "E4" unmatched in the left merge, and department would be NaN
+for those rows. clean_number uses pd.to_numeric(errors="coerce") followed by
+fillna(0.0), so unreadable money is coerced to 0.0 instead of raising.
+parse_pay_date makes two pd.to_datetime passes, each with an explicit
+format=, because one format cannot read both "8/14/2026" and "2026-09-25".
+Anything unreadable becomes NaT, and us.fillna(iso) combines the passes. The
+.dt accessor then formats pay_date into the week_ending and month labels.
+
+Long vs. wide: the history is long (one row per person per week), which
+suits group by with named aggregation. summarize_employees needs
+reset_index() to bring the grouped keys back as columns, and its overtime
+count uses a lambda because no built-in aggregation counts hours over 40.
+hours_grid and pay_by_month are wide, which is easier for people to read and
+is the shape st.bar_chart wants. pivot_table with fill_value=0 creates a
+cell for every employee and week, and melt turns those cells back into
+rows. That round trip is how missed_weeks finds absences, since no export
+has a row for someone who wasn't paid.
+
+What I will do differently: run explore.py after each function instead of
+after each module, and check for NaN in department right after add_roster,
+since that is the first sign clean_employee_id is wrong. I will read the
+test's expected column names before writing a named aggregation. I will
+always pass ignore_index=True to concat, or the combined history has twelve
+row 0s and .loc[0] returns twelve rows. Finally, I will compare against the
+real-quarter totals (113 rows, 3,107.00 hours, $57,761.63) after every
+change to the pipeline, so a bad cleaning step is caught before it reaches
+the report.
