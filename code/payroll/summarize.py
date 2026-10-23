@@ -38,4 +38,7 @@ def summarize_employees(history: pd.DataFrame) -> pd.DataFrame:
         )
         .reset_index()
     )
+    summary["total_hours"] = summary["total_hours"].round(2)
+    summary["total_pay"] = summary["total_pay"].round(2)
+    summary["avg_hours"] = summary["avg_hours"].round(2)
     return summary.sort_values("employee_id").reset_index(drop=True)
