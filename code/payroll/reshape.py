@@ -1,8 +1,8 @@
-# reshape.py
 import pandas as pd
 
 
 def hours_grid(history: pd.DataFrame) -> pd.DataFrame:
+    """(keep starter docstring)"""
     grid = history.pivot_table(
         index=["employee_id", "display_name"],
         columns="week_ending",
@@ -15,16 +15,17 @@ def hours_grid(history: pd.DataFrame) -> pd.DataFrame:
 
 
 def missed_weeks(grid: pd.DataFrame) -> pd.DataFrame:
+    """(keep starter docstring)"""
     long = grid.melt(
         id_vars=["employee_id", "display_name"],
         var_name="week_ending",
         value_name="hours_worked",
     )
-    missed = long[long["hours_worked"] == 0]
-    return missed.reset_index(drop=True)
+    return long[long["hours_worked"] == 0].reset_index(drop=True)
 
 
 def pay_by_month(history: pd.DataFrame) -> pd.DataFrame:
+    """(keep starter docstring)"""
     monthly = history.pivot_table(
         index="month",
         columns="department",

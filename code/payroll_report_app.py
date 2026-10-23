@@ -1,5 +1,5 @@
-# payroll_report_app.py
-import pandas as pd
+"""Salt City Coffee quarterly payroll report."""
+
 import streamlit as st
 
 from payroll import (

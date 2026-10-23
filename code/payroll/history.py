@@ -1,10 +1,14 @@
+import pandas as pd
+
+
 def clean_employee_id(ids: pd.Series) -> pd.Series:
+    """(keep starter docstring)"""
     s = ids.str.strip().str.upper()
-    digits = s.str[1:].str.zfill(3)
-    return "E" + digits
+    return "E" + s.str[1:].str.zfill(3)
 
 
 def clean_number(values: pd.Series) -> pd.Series:
+    """(keep starter docstring)"""
     cleaned = (
         values.str.replace("$", "", regex=False)
         .str.replace(",", "", regex=False)
@@ -14,16 +18,19 @@ def clean_number(values: pd.Series) -> pd.Series:
 
 
 def parse_pay_date(values: pd.Series) -> pd.Series:
+    """(keep starter docstring)"""
     us = pd.to_datetime(values, format="%m/%d/%Y", errors="coerce")
     iso = pd.to_datetime(values, format="%Y-%m-%d", errors="coerce")
     return us.fillna(iso)
 
 
 def combine_exports(exports: list) -> pd.DataFrame:
+    """(keep starter docstring)"""
     return pd.concat(exports, ignore_index=True)
 
 
 def add_clean_columns(history: pd.DataFrame) -> pd.DataFrame:
+    """(keep starter docstring)"""
     out = history.copy()
     out["employee_id"] = clean_employee_id(out["employeeid"])
     out["pay_date"] = parse_pay_date(out["payrolldate"])
@@ -34,6 +41,7 @@ def add_clean_columns(history: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_date_parts(history: pd.DataFrame) -> pd.DataFrame:
+    """(keep starter docstring)"""
     out = history.copy()
     out["week_ending"] = out["pay_date"].dt.strftime("%Y-%m-%d")
     out["month"] = out["pay_date"].dt.strftime("%Y-%m")
